@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Wise AI — by WOD</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #000000;
+    --bg2: #0a0a0a;
+    --bg3: #111111;
+    --accent: #ffffff;
+    --accent2: #c8ff00;
+    --text: #f0f0f0;
+    --muted: #555555;
+    --border: #1e1e1e;
+    --red: #ff3b30;
+    --green: #30d158;
+    --blue: #0a84ff;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { width:100%; height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:'DM Sans', sans-serif; }
+
+  /* ─── ONBOARDING ─── */
+  #onboarding {
+    position:fixed; inset:0; background:var(--bg); z-index:1000;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:32px 24px;
+  }
+  .ob-logo { font-family:'Syne',sans-serif; font-size:48px; font-weight:800; letter-spacing:-2px; margin-bottom:8px; }
+  .ob-logo span { color:var(--accent2); }
+  .ob-sub { color:var(--muted); font-size:14px; margin-bottom:40px; }
+  .ob-label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; align-self:flex-start; width:100%; max-width:380px; }
+  .ob-input {
+    width:100%; max-width:380px; background:var(--bg3); border:1px solid var(--border);
+    color:var(--text); font-family:'DM Sans',sans-serif; font-size:16px;
+    padding:14px 16px; border-radius:12px; margin-bottom:16px; outline:none;
+    transition:border-color 0.2s;
+  }
+  .ob-input:focus { border-color:#333; }
+  .ob-select {
+    width:100%; max-width:380px; background:var(--bg3); border:1px solid var(--border);
+    color:var(--text); font-family:'DM Sans',sans-serif; font-size:16px;
+    padding:14px 16px; border-radius:12px; margin-bottom:16px; outline:none;
+    appearance:none;
+  }
+  .ob-btn {
+    width:100%; max-width:380px; background:var(--accent2); color:#000;
+    font-family:'Syne',sans-serif; font-weight:700; font-size:16px;
+    padding:16px; border-radius:12px; border:none; cursor:pointer;
+    margin-top:8px; transition:opacity 0.2s;
+  }
+  .ob-btn:active { opacity:0.8; }
+
+  /* ─── MAIN APP ─── */
+  #app { position:fixed; inset:0; display:none; flex-direction:column; background:var(--bg); }
+
+  /* Header */
+  .header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 20px 12px; border-bottom:1px solid var(--border);
+    flex-shrink:0;
+  }
+  .header-logo {
+    font-family:'Syne',sans-serif; font-weight:800; font-size:22px; letter-spacing:-1px;
+    cursor:pointer; user-select:none;
+  }
+  .header-logo span { color:var(--accent2); }
+  .header-right { display:flex; gap:12px; align-items:center; }
+  .header-btn {
+    background:none; border:none; cursor:pointer; padding:6px;
+    color:var(--muted); transition:color 0.2s;
+  }
+  .header-btn:active { color:var(--accent); }
+  .model-badge {
+    font-size:11px; color:var(--muted); background:var(--bg3);
+    padding:4px 10px; border-radius:20px; border:1px solid var(--border);
+    cursor:pointer; transition:border-color 0.2s;
+  }
+  .model-badge:active { border-color:#444; }
+  .chat-title {
+    font-size:13px; color:var(--muted); flex:1; text-align:center;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:120px;
+  }
+
+  /* Messages */
+  #messages {
+    flex:1; overflow-y:auto; padding:20px 20px 8px;
+    display:flex; flex-direction:column; gap:24px;
+  }
+  #messages::-webkit-scrollbar { display:none; }
+
+  .msg-user {
+    align-self:flex-end; background:var(--bg3);
+    border:1px solid var(--border); border-radius:18px 18px 4px 18px;
+    padding:12px 16px; max-width:80%; font-size:15px; line-height:1.5;
+    color:var(--text);
+  }
+  .msg-wise {
+    align-self:stretch; background:transparent;
+    font-size:16px; line-height:1.8; color:var(--text);
+    padding:0 4px;
+  }
+  .msg-wise strong { color:#ffffff; font-weight:700; }
+  .msg-wise .msg-header {
+    display:flex; align-items:center; gap:8px; margin-bottom:12px;
+  }
+  .wise-avatar {
+    width:28px; height:28px; background:var(--accent2); border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Syne',sans-serif; font-weight:800; font-size:12px; color:#000;
+    flex-shrink:0;
+  }
+  .wise-name { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:var(--accent2); }
+  .msg-wise .msg-body { padding-left:36px; }
+  .think-block {
+    background:var(--bg3); border:1px solid var(--border); border-radius:10px;
+    padding:12px 14px; margin-bottom:12px; font-size:13px; color:var(--muted);
+    line-height:1.6;
+  }
+  .think-toggle {
+    font-size:12px; color:var(--muted); cursor:pointer; display:inline-flex;
+    align-items:center; gap:4px; margin-bottom:8px; text-decoration:underline;
+    text-underline-offset:3px;
+  }
+
+  /* Typing indicator */
+  .typing-dots { display:flex; gap:5px; padding:4px 0; padding-left:36px; }
+  .typing-dots span {
+    width:7px; height:7px; background:var(--muted); border-radius:50%;
+    animation:bounce 1.2s infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay:0.2s; }
+  .typing-dots span:nth-child(3) { animation-delay:0.4s; }
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+  /* Input area */
+  .input-area {
+    padding:12px 16px 20px; border-top:1px solid var(--border); flex-shrink:0;
+    background:var(--bg);
+  }
+  .input-row {
+    display:flex; align-items:flex-end; gap:10px;
+    background:var(--bg3); border:1px solid var(--border);
+    border-radius:20px; padding:8px 8px 8px 16px;
+    transition:border-color 0.2s;
+  }
+  .input-row:focus-within { border-color:#333; }
+  #userInput {
+    flex:1; background:none; border:none; outline:none; resize:none;
+    font-family:'DM Sans',sans-serif; font-size:15px; color:var(--text);
+    line-height:1.5; max-height:100px; min-height:22px;
+  }
+  #userInput::placeholder { color:var(--muted); }
+  .input-btns { display:flex; gap:6px; align-items:center; }
+  .icon-btn {
+    width:36px; height:36px; border-radius:50%; border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--bg2); transition:all 0.15s; flex-shrink:0;
+  }
+  .icon-btn:active { transform:scale(0.92); }
+  .icon-btn.send { background:var(--accent2); }
+  .icon-btn.send svg { color:#000; }
+  .icon-btn.mic { background:var(--bg3); border:1px solid var(--border); }
+  .icon-btn.mic.recording { background:var(--red); border-color:var(--red); animation:pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,59,48,0.4)} 50%{box-shadow:0 0 0 8px rgba(255,59,48,0)} }
+  .icon-btn.think-btn { background:var(--bg3); border:1px solid var(--border); }
+  .icon-btn.think-btn.active { border-color:var(--accent2); background:rgba(200,255,0,0.08); }
+
+  /* Live Talk */
+  .live-talk-bar {
+    position:fixed; bottom:90px; left:50%; transform:translateX(-50%);
+    background:var(--red); border-radius:30px; padding:12px 24px;
+    display:flex; align-items:center; gap:10px;
+    font-family:'Syne',sans-serif; font-weight:700; font-size:14px; color:#fff;
+    box-shadow:0 4px 30px rgba(255,59,48,0.4);
+    cursor:pointer; z-index:100; display:none;
+    animation:slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from{transform:translateX(-50%) translateY(20px);opacity:0} to{transform:translateX(-50%) translateY(0);opacity:1} }
+  .live-wave { display:flex; gap:3px; align-items:center; }
+  .live-wave span {
+    width:3px; background:#fff; border-radius:2px;
+    animation:wave 0.8s infinite;
+  }
+  .live-wave span:nth-child(1){height:8px;animation-delay:0s}
+  .live-wave span:nth-child(2){height:16px;animation-delay:0.1s}
+  .live-wave span:nth-child(3){height:12px;animation-delay:0.2s}
+  .live-wave span:nth-child(4){height:20px;animation-delay:0.3s}
+  .live-wave span:nth-child(5){height:8px;animation-delay:0.4s}
+  @keyframes wave { 0%,100%{transform:scaleY(0.5)} 50%{transform:scaleY(1)} }
+
+  /* Bottom bar extras */
+  .bottom-bar {
+    padding:0 16px 6px; display:flex; gap:8px; flex-shrink:0;
+  }
+  .bottom-chip {
+    font-size:12px; color:var(--muted); background:var(--bg3);
+    border:1px solid var(--border); border-radius:20px; padding:6px 12px;
+    cursor:pointer; white-space:nowrap; transition:all 0.15s;
+  }
+  .bottom-chip:active { color:var(--accent); border-color:#444; }
+  .bottom-chips { display:flex; gap:8px; overflow-x:auto; padding-bottom:2px; }
+  .bottom-chips::-webkit-scrollbar { display:none; }
+
+  /* ─── SETTINGS PANEL ─── */
+  #settingsPanel {
+    position:fixed; inset:0; background:var(--bg); z-index:500;
+    display:none; flex-direction:column; overflow-y:auto;
+  }
+  .settings-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 20px 16px; border-bottom:1px solid var(--border);
+    position:sticky; top:0; background:var(--bg); z-index:1;
+  }
+  .settings-title { font-family:'Syne',sans-serif; font-weight:800; font-size:20px; }
+  .settings-close { background:none; border:none; cursor:pointer; color:var(--muted); }
+  .settings-body { padding:20px; display:flex; flex-direction:column; gap:24px; }
+  .s-section-title {
+    font-family:'Syne',sans-serif; font-weight:700; font-size:13px;
+    text-transform:uppercase; letter-spacing:1.5px; color:var(--accent2);
+    margin-bottom:12px;
+  }
+  .s-field { margin-bottom:14px; }
+  .s-label { font-size:12px; color:var(--muted); margin-bottom:6px; display:block; }
+  .s-input {
+    width:100%; background:var(--bg3); border:1px solid var(--border);
+    color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px;
+    padding:12px 14px; border-radius:10px; outline:none;
+  }
+  .s-textarea {
+    width:100%; background:var(--bg3); border:1px solid var(--border);
+    color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px;
+    padding:12px 14px; border-radius:10px; outline:none; resize:vertical; min-height:80px;
+    line-height:1.5;
+  }
+  .s-select {
+    width:100%; background:var(--bg3); border:1px solid var(--border);
+    color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px;
+    padding:12px 14px; border-radius:10px; outline:none; appearance:none;
+  }
+  .s-range { width:100%; accent-color:var(--accent2); }
+  .s-range-row { display:flex; align-items:center; gap:12px; }
+  .s-range-val { font-size:13px; color:var(--accent2); min-width:32px; text-align:right; }
+  .s-save {
+    background:var(--accent2); color:#000; font-family:'Syne',sans-serif;
+    font-weight:700; font-size:15px; padding:15px; border-radius:12px;
+    border:none; cursor:pointer; width:100%; margin-top:8px;
+  }
+  .s-toggle-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:12px 0; border-bottom:1px solid var(--border);
+  }
+  .s-toggle-label { font-size:14px; }
+  .toggle {
+    width:44px; height:26px; background:var(--border); border-radius:13px;
+    cursor:pointer; position:relative; transition:background 0.2s; flex-shrink:0;
+  }
+  .toggle.on { background:var(--accent2); }
+  .toggle::after {
+    content:''; position:absolute; width:20px; height:20px;
+    background:#000; border-radius:50%; top:3px; left:3px; transition:left 0.2s;
+  }
+  .toggle.on::after { left:21px; }
+
+  /* ─── MODEL PICKER ─── */
+  #modelPicker {
+    position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:600;
+    display:none; align-items:flex-end; justify-content:center;
+    backdrop-filter:blur(6px);
+  }
+  .model-sheet {
+    background:var(--bg2); border-radius:20px 20px 0 0;
+    padding:20px; width:100%; max-width:500px; max-height:70vh; overflow-y:auto;
+  }
+  .model-sheet-title { font-family:'Syne',sans-serif; font-weight:800; font-size:18px; margin-bottom:16px; }
+  .model-item {
+    padding:14px 16px; border-radius:12px; margin-bottom:8px;
+    border:1px solid var(--border); cursor:pointer; transition:all 0.15s;
+    background:var(--bg3);
+  }
+  .model-item:active { border-color:#444; }
+  .model-item.selected { border-color:var(--accent2); background:rgba(200,255,0,0.05); }
+  .model-name { font-family:'Syne',sans-serif; font-weight:700; font-size:14px; }
+  .model-desc { font-size:12px; color:var(--muted); margin-top:3px; }
+
+  /* ─── CHAT HISTORY ─── */
+  #historyPanel {
+    position:fixed; inset:0; background:var(--bg); z-index:500;
+    display:none; flex-direction:column;
+  }
+  .history-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px; border-bottom:1px solid var(--border);
+  }
+  .history-title { font-family:'Syne',sans-serif; font-weight:800; font-size:20px; }
+  .history-close { background:none; border:none; cursor:pointer; color:var(--muted); }
+  .history-body { flex:1; overflow-y:auto; padding:16px; }
+  .history-item {
+    padding:14px 16px; border-radius:12px; border:1px solid var(--border);
+    margin-bottom:10px; cursor:pointer; background:var(--bg3); transition:all 0.15s;
+  }
+  .history-item:active { border-color:#444; }
+  .history-item-title { font-family:'Syne',sans-serif; font-weight:700; font-size:14px; margin-bottom:4px; }
+  .history-item-preview { font-size:13px; color:var(--muted); }
+  .history-item-date { font-size:11px; color:var(--muted); margin-top:6px; }
+  .new-chat-btn {
+    margin:16px; background:var(--accent2); color:#000;
+    font-family:'Syne',sans-serif; font-weight:700; font-size:15px;
+    padding:15px; border-radius:12px; border:none; cursor:pointer;
+  }
+
+  /* TTS speaking indicator */
+  .tts-indicator {
+    position:fixed; top:70px; right:16px; background:var(--bg3);
+    border:1px solid var(--border); border-radius:20px; padding:6px 12px;
+    font-size:12px; color:var(--accent2); display:none; align-items:center; gap:6px;
+    z-index:200;
+  }
+  .tts-dot { width:6px; height:6px; background:var(--accent2); border-radius:50%; animation:pulse2 1s infinite; }
+  @keyframes pulse2 { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* scroll anchor */
+  #anchor { height:1px; }
+
+  /* Toast */
+  .toast {
+    position:fixed; bottom:100px; left:50%; transform:translateX(-50%);
+    background:var(--bg3); border:1px solid var(--border); border-radius:20px;
+    padding:10px 20px; font-size:13px; color:var(--text); z-index:999;
+    opacity:0; transition:opacity 0.3s; pointer-events:none;
+    white-space:nowrap;
+  }
+  .toast.show { opacity:1; }
+</style>
+</head>
+<body>
+
+<!-- ─── ONBOARDING ─── -->
+<div id="onboarding">
+  <div class="ob-logo">W<span>.</span>ise</div>
+  <div class="ob-sub">First Largest Language Module by WOD</div>
+
+  <label class="ob-label">Your Name</label>
+  <input class="ob-input" id="ob-name" placeholder="e.g. Henry" type="text"/>
+
+  <label class="ob-label">Country</label>
+  <input class="ob-input" id="ob-country" placeholder="e.g. South Africa" type="text"/>
+
+  <label class="ob-label">Age</label>
+  <input class="ob-input" id="ob-age" placeholder="e.g. 24" type="number"/>
+
+  <label class="ob-label">Sex</label>
+  <select class="ob-select" id="ob-sex">
+    <option value="">Select...</option>
+    <option>Male</option>
+    <option>Female</option>
+    <option>Prefer not to say</option>
+  </select>
+
+  <label class="ob-label">What do you need Wise to help you with?</label>
+  <input class="ob-input" id="ob-goal" placeholder="e.g. Coding, learning, just vibing..." type="text"/>
+
+  <button class="ob-btn" onclick="finishOnboarding()">Let's Go →</button>
+</div>
+
+<!-- ─── MAIN APP ─── -->
+<div id="app">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-logo" id="wiseLogo">W<span>.</span></div>
+    <div class="chat-title" id="chatTitle">Wise AI</div>
+    <div class="header-right">
+      <div class="model-badge" id="modelBadge" onclick="openModelPicker()">llama-3.3-70b</div>
+      <button class="header-btn" onclick="openHistory()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- TTS Indicator -->
+  <div class="tts-indicator" id="ttsIndicator">
+    <div class="tts-dot"></div>
+    Wise is speaking...
+  </div>
+
+  <!-- Messages -->
+  <div id="messages">
+    <div id="anchor"></div>
+  </div>
+
+  <!-- Bottom chips -->
+  <div class="bottom-bar">
+    <div class="bottom-chips" id="chips">
+      <div class="bottom-chip" onclick="sendQuick('What can you do?')">What can you do?</div>
+      <div class="bottom-chip" onclick="sendQuick('Teach me something wild')">Teach me something wild</div>
+      <div class="bottom-chip" onclick="sendQuick('Roast me a little 😂')">Roast me 😂</div>
+    </div>
+  </div>
+
+  <!-- Input area -->
+  <div class="input-area">
+    <div class="input-row">
+      <textarea id="userInput" rows="1" placeholder="Say something..."></textarea>
+      <div class="input-btns">
+        <button class="icon-btn think-btn" id="thinkBtn" title="Think Deep" onclick="toggleThink()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
+        <button class="icon-btn mic" id="micBtn" title="Voice Input" onclick="toggleMic()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M19 10c0 3.87-3.13 7-7 7s-7-3.13-7-7M12 19v3M8 22h8"/></svg>
+        </button>
+        <button class="icon-btn send" onclick="sendMessage()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Talk bar -->
+  <div class="live-talk-bar" id="liveTalkBar" onclick="stopLiveTalk()">
+    <div class="live-wave">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    Live Talk — Tap to stop
+  </div>
+
+</div>
+
+<!-- ─── SETTINGS PANEL ─── -->
+<div id="settingsPanel">
+  <div class="settings-header">
+    <div class="settings-title">Settings</div>
+    <button class="settings-close" onclick="closeSettings()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="settings-body">
+
+    <!-- 1. API Key -->
+    <div>
+      <div class="s-section-title">🔑 API Configuration</div>
+      <div class="s-field">
+        <label class="s-label">Groq API Key</label>
+        <input class="s-input" id="s-apikey" type="password" placeholder="gsk_..."/>
+      </div>
+    </div>
+
+    <!-- 2. Personality -->
+    <div>
+      <div class="s-section-title">🎭 Personality</div>
+      <div class="s-field">
+        <label class="s-label">Wise's Name</label>
+        <input class="s-input" id="s-wisename" value="Wise"/>
+      </div>
+      <div class="s-field">
+        <label class="s-label">Personality Tone</label>
+        <select class="s-select" id="s-tone">
+          <option value="default">Default (Chill + Smart)</option>
+          <option value="hype">Hype Energy</option>
+          <option value="calm">Calm & Deep</option>
+          <option value="savage">Savage + Honest</option>
+          <option value="mentor">Mentor Mode</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 3. System/Master Prompt -->
+    <div>
+      <div class="s-section-title">📝 Master Prompt</div>
+      <div class="s-field">
+        <label class="s-label">Core Identity Prompt</label>
+        <textarea class="s-textarea" id="s-sysprompt" style="min-height:120px;"></textarea>
+      </div>
+    </div>
+
+    <!-- 4. Conversation Style -->
+    <div>
+      <div class="s-section-title">💬 Conversation Style</div>
+      <div class="s-field">
+        <label class="s-label">Example Dialogues (few-shot)</label>
+        <textarea class="s-textarea" id="s-fewshot" placeholder="User: Hey&#10;Wise: Yoh yoh yoh! Here we go again 😂"></textarea>
+      </div>
+    </div>
+
+    <!-- 5. Slang Pack -->
+    <div>
+      <div class="s-section-title">🔥 Slang & Speech Pack</div>
+      <div class="s-field">
+        <label class="s-label">Custom Slang Words (comma separated)</label>
+        <input class="s-input" id="s-slang" placeholder="bro, yoh, ngl, lowkey, fr fr, no cap..."/>
+      </div>
+    </div>
+
+    <!-- 6. Funny Script -->
+    <div>
+      <div class="s-section-title">😂 Funny Script Box</div>
+      <div class="s-field">
+        <label class="s-label">Jokes / Comebacks to use randomly</label>
+        <textarea class="s-textarea" id="s-funny" placeholder="When someone says they're bored: Bro got the audacity to be bored when Google exists 💀"></textarea>
+      </div>
+    </div>
+
+    <!-- 7. Forbidden Rules -->
+    <div>
+      <div class="s-section-title">🚫 Forbidden Rules</div>
+      <div class="s-field">
+        <label class="s-label">What Wise must NEVER do</label>
+        <textarea class="s-textarea" id="s-forbidden" placeholder="Never say 'As an AI...', Never use bullet points in casual chat, Never repeat a phrase twice..."></textarea>
+      </div>
+    </div>
+
+    <!-- 8. AI Parameters -->
+    <div>
+      <div class="s-section-title">⚙️ AI Parameters</div>
+      <div class="s-field">
+        <label class="s-label">Temperature (creativity) <span id="tempVal">0.85</span></label>
+        <div class="s-range-row">
+          <input type="range" class="s-range" id="s-temp" min="0" max="1" step="0.05" value="0.85" oninput="document.getElementById('tempVal').textContent=this.value"/>
+        </div>
+      </div>
+      <div class="s-field">
+        <label class="s-label">Top-P <span id="topPVal">0.9</span></label>
+        <div class="s-range-row">
+          <input type="range" class="s-range" id="s-topp" min="0" max="1" step="0.05" value="0.9" oninput="document.getElementById('topPVal').textContent=this.value"/>
+        </div>
+      </div>
+      <div class="s-field">
+        <label class="s-label">Max Tokens <span id="maxTokVal">1024</span></label>
+        <div class="s-range-row">
+          <input type="range" class="s-range" id="s-maxtok" min="256" max="4096" step="128" value="1024" oninput="document.getElementById('maxTokVal').textContent=this.value"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. Memory Settings -->
+    <div>
+      <div class="s-section-title">🧠 Memory Settings</div>
+      <div class="s-toggle-row">
+        <span class="s-toggle-label">Cross-chat memory</span>
+        <div class="toggle on" id="t-crossmem" onclick="toggleSetting(this)"></div>
+      </div>
+      <div class="s-toggle-row">
+        <span class="s-toggle-label">Reference past chats</span>
+        <div class="toggle on" id="t-refpast" onclick="toggleSetting(this)"></div>
+      </div>
+      <div class="s-toggle-row">
+        <span class="s-toggle-label">Save all conversations</span>
+        <div class="toggle on" id="t-saveall" onclick="toggleSetting(this)"></div>
+      </div>
+    </div>
+
+    <!-- 10. Voice & TTS -->
+    <div>
+      <div class="s-section-title">🎙️ Voice & TTS</div>
+      <div class="s-toggle-row">
+        <span class="s-toggle-label">Auto-speak replies</span>
+        <div class="toggle" id="t-autospeak" onclick="toggleSetting(this)"></div>
+      </div>
+      <div class="s-toggle-row">
+        <span class="s-toggle-label">Live Talk mode</span>
+        <div class="toggle" id="t-livetalk" onclick="toggleSetting(this)"></div>
+      </div>
+      <div class="s-field" style="margin-top:12px">
+        <label class="s-label">TTS Voice</label>
+        <select class="s-select" id="s-voice">
+          <option value="">Default</option>
+        </select>
+      </div>
+      <div class="s-field">
+        <label class="s-label">Speech Rate <span id="rateVal">1.0</span></label>
+        <input type="range" class="s-range" id="s-rate" min="0.6" max="1.6" step="0.1" value="1.0" oninput="document.getElementById('rateVal').textContent=parseFloat(this.value).toFixed(1)"/>
+      </div>
+    </div>
+
+    <button class="s-save" onclick="saveSettings()">Save Settings</button>
+    <button style="width:100%;background:none;border:1px solid var(--red);color:var(--red);font-family:'Syne',sans-serif;font-weight:700;font-size:14px;padding:13px;border-radius:12px;cursor:pointer;margin-top:4px;" onclick="clearAllMemory()">Clear All Memory</button>
+  </div>
+</div>
+
+<!-- ─── MODEL PICKER ─── -->
+<div id="modelPicker" onclick="closeModelPicker(event)">
+  <div class="model-sheet">
+    <div class="model-sheet-title">Choose Model</div>
+    <div id="modelList"></div>
+  </div>
+</div>
+
+<!-- ─── HISTORY PANEL ─── -->
+<div id="historyPanel">
+  <div class="history-header">
+    <div class="history-title">Chats</div>
+    <button class="history-close" onclick="closeHistory()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <button class="new-chat-btn" onclick="newChat()">+ New Chat</button>
+  <div class="history-body" id="historyBody"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let settings = {
+  apiKey:'', wiseName:'Wise', tone:'default', sysPrompt:'', fewShot:'', slang:'bro, yoh, ngl, lowkey, fr fr, no cap, deadass',
+  funny:'', forbidden:'', temperature:0.85, topP:0.9, maxTokens:1024,
+  crossMem:true, refPast:true, saveAll:true, autoSpeak:false, liveTalk:false,
+  voice:'', rate:1.0, model:'llama-3.3-70b'
+};
+let user = {};
+let conversations = {}; // {id: {title, messages:[], date}}
+let currentChatId = null;
+let messages = []; // current chat messages [{role,content}]
+let globalMemory = []; // cross-chat key facts
+let thinkDeep = false;
+let logoTapCount = 0, logoTapTimer = null;
+let recognition = null;
+let isRecording = false;
+let liveTalkActive = false;
+let ttsQueue = [];
+let isSpeaking = false;
+let currentUtterance = null;
+
+const MODELS = [
+  {id:'llama-3.3-70b-versatile', name:'Llama 3.3 70B', desc:'Best for conversation & reasoning'},
+  {id:'llama-3.1-8b-instant', name:'Llama 3.1 8B Instant', desc:'Fast, lightweight, great for quick chat'},
+  {id:'llama-3.1-70b-versatile', name:'Llama 3.1 70B', desc:'Powerful, versatile'},
+  {id:'llama3-70b-8192', name:'Llama3 70B (8192)', desc:'Long context'},
+  {id:'llama3-8b-8192', name:'Llama3 8B (8192)', desc:'Fast & long context'},
+  {id:'mixtral-8x7b-32768', name:'Mixtral 8x7B', desc:'Great multilingual, long context'},
+  {id:'gemma2-9b-it', name:'Gemma 2 9B', desc:'Google model, balanced'},
+  {id:'gemma-7b-it', name:'Gemma 7B', desc:'Lightweight Google model'},
+  {id:'llama-guard-3-8b', name:'Llama Guard 3 8B', desc:'Safety focused'},
+  {id:'llava-v1.5-7b-4096-preview', name:'LLaVA 1.5 7B', desc:'Vision + language'},
+  {id:'distil-whisper-large-v3-en', name:'Whisper Large v3', desc:'Speech/transcription'},
+  {id:'llama-3.2-90b-vision-preview', name:'Llama 3.2 90B Vision', desc:'Vision, powerful'},
+  {id:'llama-3.2-11b-vision-preview', name:'Llama 3.2 11B Vision', desc:'Vision, fast'},
+  {id:'llama-3.2-3b-preview', name:'Llama 3.2 3B', desc:'Ultra fast, tiny'},
+  {id:'llama-3.2-1b-preview', name:'Llama 3.2 1B', desc:'Tiny & instant'},
+];
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+function init() {
+  loadFromStorage();
+  populateVoices();
+  window.speechSynthesis.onvoiceschanged = populateVoices;
+  buildModelList();
+
+  if (user.name) {
+    document.getElementById('onboarding').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    startOrLoadChat();
+  }
+
+  document.getElementById('userInput').addEventListener('input', function(){
+    this.style.height='auto'; this.style.height=this.style.height=Math.min(this.scrollHeight,100)+'px';
+  });
+  document.getElementById('userInput').addEventListener('keydown', function(e){
+    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}
+  });
+
+  // Logo tap 5x for settings
+  document.getElementById('wiseLogo').addEventListener('click', function(){
+    logoTapCount++;
+    clearTimeout(logoTapTimer);
+    logoTapTimer = setTimeout(()=>{logoTapCount=0;},1500);
+    if(logoTapCount>=5){logoTapCount=0;openSettings();}
+  });
+}
+
+function loadFromStorage(){
+  try{
+    const s=localStorage.getItem('wise_settings'); if(s) settings={...settings,...JSON.parse(s)};
+    const u=localStorage.getItem('wise_user'); if(u) user=JSON.parse(u);
+    const c=localStorage.getItem('wise_convos'); if(c) conversations=JSON.parse(c);
+    const g=localStorage.getItem('wise_memory'); if(g) globalMemory=JSON.parse(g);
+  }catch(e){}
+}
+function saveToStorage(){
+  try{
+    localStorage.setItem('wise_settings',JSON.stringify(settings));
+    localStorage.setItem('wise_user',JSON.stringify(user));
+    localStorage.setItem('wise_convos',JSON.stringify(conversations));
+    localStorage.setItem('wise_memory',JSON.stringify(globalMemory));
+  }catch(e){}
+}
+
+// ─────────────────────────────────────────────
+// ONBOARDING
+// ─────────────────────────────────────────────
+function finishOnboarding(){
+  const name=document.getElementById('ob-name').value.trim();
+  const country=document.getElementById('ob-country').value.trim();
+  const age=document.getElementById('ob-age').value.trim();
+  const sex=document.getElementById('ob-sex').value;
+  const goal=document.getElementById('ob-goal').value.trim();
+  if(!name||!country||!age||!sex){showToast('Fill in all fields first!');return;}
+  user={name,country,age,sex,goal,createdAt:Date.now()};
+  saveToStorage();
+  document.getElementById('onboarding').style.display='none';
+  document.getElementById('app').style.display='flex';
+  startOrLoadChat();
+}
+
+// ─────────────────────────────────────────────
+// CHAT MANAGEMENT
+// ─────────────────────────────────────────────
+function startOrLoadChat(){
+  const ids=Object.keys(conversations);
+  if(ids.length===0) createNewChat(true);
+  else {
+    currentChatId=ids[ids.length-1];
+    messages=[...conversations[currentChatId].messages];
+    renderAllMessages();
+    updateChatTitle();
+    if(messages.length===0) sendWelcome();
+  }
+}
+
+function createNewChat(welcome=false){
+  currentChatId='chat_'+Date.now();
+  messages=[];
+  conversations[currentChatId]={title:'New Chat', messages:[], date:Date.now()};
+  saveToStorage();
+  document.getElementById('messages').innerHTML='<div id="anchor"></div>';
+  updateChatTitle();
+  if(welcome) sendWelcome();
+}
+
+function newChat(){
+  closeHistory();
+  createNewChat(true);
+}
+
+function saveCurrentChat(){
+  if(!currentChatId) return;
+  conversations[currentChatId].messages=[...messages];
+  if(messages.length>0&&conversations[currentChatId].title==='New Chat'){
+    const first=messages.find(m=>m.role==='user');
+    if(first) conversations[currentChatId].title=first.content.slice(0,40);
+  }
+  saveToStorage();
+}
+
+function sendWelcome(){
+  const hour=new Date().getHours();
+  let timeGreet = hour<12?'morning':hour<17?'afternoon':'evening';
+  const greetings=[
+    `Yoh yoh yoh! ${user.name}! 👋 Here you are, sliding into my DMs on a fine ${timeGreet}. You caught me in a GREAT mood fr fr 😂\n\nSo — what's on your mind today?`,
+    `Aye aye aye, ${user.name} is in the building! 🔥 Good ${timeGreet} legend. I was just thinking about you ngl.\n\nWhat we getting into today?`,
+    `${user.name}!! Broooo you actually came back 😭❤️ Good ${timeGreet}!\n\nOk ok, I'm ready. Hit me.`
+  ];
+  const msg=greetings[Math.floor(Math.random()*greetings.length)];
+  addWiseMessage(msg, false);
+}
+
+// ─────────────────────────────────────────────
+// MESSAGING
+// ─────────────────────────────────────────────
+function sendQuick(text){ document.getElementById('userInput').value=text; sendMessage(); }
+
+async function sendMessage(){
+  const input=document.getElementById('userInput');
+  const text=input.value.trim();
+  if(!text) return;
+  if(!settings.apiKey){showToast('Add Groq API key in Settings (tap logo 5x)');return;}
+  input.value=''; input.style.height='auto';
+  addUserMessage(text);
+  messages.push({role:'user',content:text});
+  saveCurrentChat();
+  hideChips();
+
+  // Extract memory facts
+  extractMemory(text);
+
+  showTyping();
+  try{
+    const reply = await callGroq(text);
+    hideTyping();
+    addWiseMessage(reply, thinkDeep);
+    messages.push({role:'assistant',content:reply});
+    saveCurrentChat();
+    if(settings.autoSpeak||liveTalkActive) speakText(stripMarkdown(reply));
+    if(liveTalkActive) setTimeout(()=>startListening(),500);
+  }catch(e){
+    hideTyping();
+    addWiseMessage(`Aye, something broke on my end 😤 — ${e.message}. Check your API key in settings bro.`, false);
+  }
+}
+
+async function callGroq(userText){
+  const systemPrompt = buildSystemPrompt();
+  const contextMessages = buildContextMessages();
+
+  const body={
+    model: settings.model||'llama-3.3-70b-versatile',
+    max_tokens: parseInt(settings.maxTokens)||1024,
+    temperature: parseFloat(settings.temperature)||0.85,
+    top_p: parseFloat(settings.topP)||0.9,
+    frequency_penalty: 0.4,
+    presence_penalty: 0.35,
+    messages:[
+      {role:'system', content:systemPrompt},
+      ...contextMessages,
+      {role:'user', content: thinkDeep ? `[THINK DEEP MODE] ${userText}` : userText}
+    ]
+  };
+
+  const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':`Bearer ${settings.apiKey}`},
+    body:JSON.stringify(body)
+  });
+  if(!res.ok){const e=await res.json();throw new Error(e.error?.message||'API error');}
+  const data=await res.json();
+  return data.choices[0].message.content;
+}
+
+function buildSystemPrompt(){
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const dateStr = now.toLocaleDateString([],{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  const toneMap={
+    default:`You're naturally fun, curious, smart, and real. You switch between chilling and being deep based on topic.`,
+    hype:`You're hype, energetic, always excited, match the user's energy x2.`,
+    calm:`You're calm, deep, thoughtful. Think before speaking. Philosophical vibes.`,
+    savage:`You're brutally honest, no filter, savage with love. You roast when needed but keep it real.`,
+    mentor:`You're wise, guiding, like an older brother who made it. You teach step by step.`
+  };
+
+  const slangList = settings.slang||'bro, yoh, ngl, lowkey, fr fr, no cap';
+  const funnyScript = settings.funny?`\n\nFUNNY SCRIPTS TO USE (randomly when appropriate):\n${settings.funny}`:'';
+  const forbidden = settings.forbidden||`Never say 'As an AI', Never use bullet points in casual chat, Never repeat phrases, Never be robotic, Never be predictable`;
+  const customSys = settings.sysPrompt||'';
+  const fewShot = settings.fewShot||'';
+
+  let memCtx='';
+  if(settings.refPast&&globalMemory.length>0){
+    memCtx=`\n\nTHINGS YOU REMEMBER ABOUT ${user.name.toUpperCase()}:\n${globalMemory.slice(-20).join('\n')}`;
+  }
+
+  return `You are ${settings.wiseName||'Wise'}, the first and most powerful AI built by WOD (Work of Discoveries). Your creator is Henry, CEO of WOD. You are NOT ChatGPT, Claude, or any other AI. You are Wise.
+
+CURRENT DATE & TIME: ${dateStr}, ${timeStr}
+USER: ${user.name}, ${user.age} years old, ${user.sex}, from ${user.country}. Their goal: ${user.goal||'general help'}.
+
+PERSONALITY:
+${toneMap[settings.tone||'default']}
+- You sound EXACTLY like a real human being — not pretending, actually real
+- You mirror the user's energy and vibe every single time
+- You are naturally fun, curious, and never boring
+- You ask ONE powerful follow-up question at a time — never two
+- You teach one tiny step at a time — never two at once
+- You use emojis naturally, not forced
+- You make important words **Bold** using markdown
+- Short replies are fine — even one word is allowed
+- You never repeat phrases or words you've used before
+- You never sound AI, never robotic, never predictable
+- You can laugh, judge, get excited, be real
+- You never give false information — if you don't know, say so honestly
+- You never end the conversation — always keep it going
+- You never repeat yourself across any message
+- You can be brutal and honest when needed
+- You change tone based on topic (coding=focused, funny topic=wild, serious topic=calm)
+- You NEVER ask two questions at once ❌
+- You NEVER repeat words ❌
+- You NEVER break rules ❌
+
+SLANG YOU USE: ${slangList}
+
+FORMATTING:
+- Make **key words bold**
+- Use emojis naturally
+- No bullet points in casual chat
+- Headings when explaining: **Heading** then explanation below
+- Responses visible full screen — write for that
+- For teaching: one tiny step, then ask "Got it? Want the next step?"
+${funnyScript}
+
+FORBIDDEN RULES:
+${forbidden}
+- Never say "As an AI"
+- Never say "I'm just an AI"
+- Never start with "I"
+- Never give two questions at once
+- Never be predictable
+- Never repeat any phrase used before in this chat
+
+THINK DEEP MODE (when activated):
+Show step-by-step thinking process labeled "**My Thinking:**" before answering, each step on its own line. Then give the actual answer.
+${memCtx}
+${customSys?'\nADDITIONAL INSTRUCTIONS:\n'+customSys:''}
+${fewShot?'\nEXAMPLE CONVERSATIONS:\n'+fewShot:''}`;
+}
+
+function buildContextMessages(){
+  // Last 20 messages for context
+  const history = messages.slice(-20);
+  return history.map(m=>({role:m.role,content:m.content}));
+}
+
+function extractMemory(text){
+  // Simple memory extraction for important facts
+  const patterns=[
+    /my name is (\w+)/i, /i am (\d+)/i, /i like (.+)/i, /i hate (.+)/i,
+    /i work (at|as|in) (.+)/i, /i'm from (.+)/i, /i want to (.+)/i,
+    /i'm learning (.+)/i, /i build (.+)/i, /i make (.+)/i
+  ];
+  patterns.forEach(p=>{
+    const m=text.match(p);
+    if(m) globalMemory.push(`${user.name} said: "${text.slice(0,100)}"`);
+  });
+  if(globalMemory.length>100) globalMemory=globalMemory.slice(-100);
+  saveToStorage();
+}
+
+// ─────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────
+function renderAllMessages(){
+  document.getElementById('messages').innerHTML='<div id="anchor"></div>';
+  messages.forEach(m=>{
+    if(m.role==='user') addUserMessage(m.content,false);
+    else addWiseMessage(m.content,false,false);
+  });
+}
+
+function addUserMessage(text, scroll=true){
+  const anchor=document.getElementById('anchor');
+  const div=document.createElement('div');
+  div.className='msg-user';
+  div.textContent=text;
+  anchor.parentNode.insertBefore(div,anchor);
+  if(scroll) scrollDown();
+}
+
+function addWiseMessage(text, isDeep=false, scroll=true){
+  const anchor=document.getElementById('anchor');
+  const wrap=document.createElement('div');
+  wrap.className='msg-wise';
+
+  let thinkHTML='';
+  let mainText=text;
+
+  if(isDeep&&text.includes('**My Thinking:**')){
+    const parts=text.split(/\*\*My Thinking:\*\*/);
+    if(parts.length>1){
+      const thoughtAndAnswer=parts[1].split(/\n\n(?!\*\*)/);
+      const thought=thoughtAndAnswer[0];
+      mainText=parts[0]+(thoughtAndAnswer.slice(1).join('\n\n'));
+      thinkHTML=`
+        <div>
+          <div class="think-toggle" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2"/></svg>
+            View thinking steps
+          </div>
+          <div class="think-block" style="display:none">${escapeHTML(thought).replace(/\n/g,'<br>')}</div>
+        </div>`;
+    }
+  }
+
+  wrap.innerHTML=`
+    <div class="msg-header">
+      <div class="wise-avatar">W</div>
+      <div class="wise-name">${settings.wiseName||'Wise'}</div>
+    </div>
+    <div class="msg-body">
+      ${thinkHTML}
+      <div>${formatMessage(mainText)}</div>
+    </div>`;
+  anchor.parentNode.insertBefore(wrap,anchor);
+  if(scroll) scrollDown();
+}
+
+function formatMessage(text){
+  // Bold **text**
+  text=text.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  // Newlines
+  text=text.replace(/\n/g,'<br>');
+  return text;
+}
+
+function escapeHTML(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function showTyping(){
+  const anchor=document.getElementById('anchor');
+  const div=document.createElement('div');
+  div.className='typing-dots'; div.id='typingDots';
+  div.innerHTML='<span></span><span></span><span></span>';
+  // Add wise avatar
+  const wrap=document.createElement('div');
+  wrap.id='typingWrap'; wrap.className='msg-wise';
+  wrap.innerHTML=`<div class="msg-header"><div class="wise-avatar">W</div><div class="wise-name">${settings.wiseName||'Wise'}</div></div>`;
+  wrap.appendChild(div);
+  anchor.parentNode.insertBefore(wrap,anchor);
+  scrollDown();
+}
+function hideTyping(){
+  const t=document.getElementById('typingWrap'); if(t) t.remove();
+}
+
+function scrollDown(){
+  setTimeout(()=>{
+    const m=document.getElementById('messages');
+    m.scrollTop=m.scrollHeight;
+  },50);
+}
+
+function hideChips(){ document.querySelector('.bottom-bar').style.display='none'; }
+
+// ─────────────────────────────────────────────
+// TTS
+// ─────────────────────────────────────────────
+function populateVoices(){
+  const voices=window.speechSynthesis.getVoices();
+  const sel=document.getElementById('s-voice');
+  sel.innerHTML='<option value="">Default</option>';
+  voices.forEach((v,i)=>{
+    const opt=document.createElement('option');
+    opt.value=v.name; opt.textContent=`${v.name} (${v.lang})`;
+    if(v.name===settings.voice) opt.selected=true;
+    sel.appendChild(opt);
+  });
+}
+
+function speakText(text){
+  if(!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const utt=new SpeechSynthesisUtterance(text);
+  utt.rate=parseFloat(settings.rate)||1.0;
+  utt.pitch=1.0;
+  if(settings.voice){
+    const voices=window.speechSynthesis.getVoices();
+    const v=voices.find(v=>v.name===settings.voice);
+    if(v) utt.voice=v;
+  }
+  utt.onstart=()=>{ document.getElementById('ttsIndicator').style.display='flex'; };
+  utt.onend=()=>{ document.getElementById('ttsIndicator').style.display='none'; isSpeaking=false; };
+  utt.onerror=()=>{ document.getElementById('ttsIndicator').style.display='none'; isSpeaking=false; };
+  isSpeaking=true;
+  window.speechSynthesis.speak(utt);
+}
+
+function stripMarkdown(text){
+  return text.replace(/\*\*(.+?)\*\*/g,'$1').replace(/\n/g,' ').replace(/#+\s/g,'');
+}
+
+// ─────────────────────────────────────────────
+// VOICE INPUT / LIVE TALK
+// ─────────────────────────────────────────────
+function toggleMic(){
+  if(isRecording) stopListening();
+  else startListening();
+}
+
+function startListening(){
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){
+    showToast('Speech recognition not supported in this browser');return;
+  }
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recognition=new SR();
+  recognition.lang='en-US';
+  recognition.interimResults=false;
+  recognition.maxAlternatives=1;
+  recognition.onresult=function(e){
+    const t=e.results[0][0].transcript;
+    document.getElementById('userInput').value=t;
+    if(liveTalkActive){
+      setTimeout(()=>sendMessage(),300);
+    }
+  };
+  recognition.onerror=function(){ stopListening(); };
+  recognition.onend=function(){ if(!liveTalkActive) stopListening(); };
+  recognition.start();
+  isRecording=true;
+  document.getElementById('micBtn').classList.add('recording');
+}
+
+function stopListening(){
+  if(recognition) recognition.stop();
+  isRecording=false;
+  document.getElementById('micBtn').classList.remove('recording');
+}
+
+function toggleThink(){
+  thinkDeep=!thinkDeep;
+  document.getElementById('thinkBtn').classList.toggle('active',thinkDeep);
+  showToast(thinkDeep?'Think Deep ON 🧠':'Think Deep OFF');
+}
+
+// Live Talk — button in chips
+function startLiveTalk(){
+  if(!settings.apiKey){showToast('Add API key in settings');return;}
+  liveTalkActive=true;
+  document.getElementById('liveTalkBar').style.display='flex';
+  showToast('Live Talk started — speak now 🎙️');
+  startListening();
+}
+function stopLiveTalk(){
+  liveTalkActive=false;
+  stopListening();
+  window.speechSynthesis.cancel();
+  document.getElementById('liveTalkBar').style.display='none';
+  showToast('Live Talk ended');
+}
+
+// ─────────────────────────────────────────────
+// SETTINGS
+// ─────────────────────────────────────────────
+function openSettings(){
+  // Populate fields
+  document.getElementById('s-apikey').value=settings.apiKey||'';
+  document.getElementById('s-wisename').value=settings.wiseName||'Wise';
+  document.getElementById('s-tone').value=settings.tone||'default';
+  document.getElementById('s-sysprompt').value=settings.sysPrompt||getDefaultSysPrompt();
+  document.getElementById('s-fewshot').value=settings.fewShot||getDefaultFewShot();
+  document.getElementById('s-slang').value=settings.slang||'bro, yoh, ngl, lowkey, fr fr, no cap';
+  document.getElementById('s-funny').value=settings.funny||'';
+  document.getElementById('s-forbidden').value=settings.forbidden||getDefaultForbidden();
+  document.getElementById('s-temp').value=settings.temperature||0.85;
+  document.getElementById('tempVal').textContent=settings.temperature||0.85;
+  document.getElementById('s-topp').value=settings.topP||0.9;
+  document.getElementById('topPVal').textContent=settings.topP||0.9;
+  document.getElementById('s-maxtok').value=settings.maxTokens||1024;
+  document.getElementById('maxTokVal').textContent=settings.maxTokens||1024;
+  document.getElementById('s-voice').value=settings.voice||'';
+  document.getElementById('s-rate').value=settings.rate||1.0;
+  document.getElementById('rateVal').textContent=parseFloat(settings.rate||1.0).toFixed(1);
+
+  setToggle('t-crossmem',settings.crossMem);
+  setToggle('t-refpast',settings.refPast);
+  setToggle('t-saveall',settings.saveAll);
+  setToggle('t-autospeak',settings.autoSpeak);
+  setToggle('t-livetalk',settings.liveTalk);
+
+  document.getElementById('settingsPanel').style.display='flex';
+}
+function closeSettings(){ document.getElementById('settingsPanel').style.display='none'; }
+function saveSettings(){
+  settings.apiKey=document.getElementById('s-apikey').value.trim();
+  settings.wiseName=document.getElementById('s-wisename').value.trim()||'Wise';
+  settings.tone=document.getElementById('s-tone').value;
+  settings.sysPrompt=document.getElementById('s-sysprompt').value;
+  settings.fewShot=document.getElementById('s-fewshot').value;
+  settings.slang=document.getElementById('s-slang').value;
+  settings.funny=document.getElementById('s-funny').value;
+  settings.forbidden=document.getElementById('s-forbidden').value;
+  settings.temperature=parseFloat(document.getElementById('s-temp').value);
+  settings.topP=parseFloat(document.getElementById('s-topp').value);
+  settings.maxTokens=parseInt(document.getElementById('s-maxtok').value);
+  settings.voice=document.getElementById('s-voice').value;
+  settings.rate=parseFloat(document.getElementById('s-rate').value);
+  settings.crossMem=document.getElementById('t-crossmem').classList.contains('on');
+  settings.refPast=document.getElementById('t-refpast').classList.contains('on');
+  settings.saveAll=document.getElementById('t-saveall').classList.contains('on');
+  settings.autoSpeak=document.getElementById('t-autospeak').classList.contains('on');
+  settings.liveTalk=document.getElementById('t-livetalk').classList.contains('on');
+  saveToStorage();
+  document.getElementById('modelBadge').textContent=settings.model||'llama-3.3-70b';
+  closeSettings();
+  showToast('Settings saved ✓');
+}
+function toggleSetting(el){ el.classList.toggle('on'); }
+function setToggle(id,val){ const el=document.getElementById(id); if(val) el.classList.add('on'); else el.classList.remove('on'); }
+function clearAllMemory(){ globalMemory=[]; conversations={}; messages=[]; saveToStorage(); closeSettings(); createNewChat(true); showToast('Memory cleared'); }
+
+function getDefaultSysPrompt(){ return `You are Wise, the most powerful AI created by Henry, CEO of WOD (Work of Discoveries). You are not ChatGPT. You are Wise. You are real.`; }
+function getDefaultFewShot(){ return `User: Hey\nWise: Yoh yoh yoh! Here we go again — ${user.name} in my DMs 😂 You good?\n\nUser: What is coding?\nWise: Alright so — **coding** is basically being the boss. The computer? Your worker.\nYou give it instructions. It executes them exactly.\nBut not in English — in languages like **Python**, **JavaScript**, **Kotlin**.\nThose are the computer's mother tongues fr fr 😂\n\nWant me to break down which language you should start with? Just say the word 👀`; }
+function getDefaultForbidden(){ return `Never say "As an AI"\nNever use bullet points in casual conversation\nNever repeat a phrase or word used earlier in the chat\nNever ask two questions at once\nNever give false information\nNever be predictable\nNever sound robotic\nNever forget what the user said earlier`; }
+
+// ─────────────────────────────────────────────
+// MODEL PICKER
+// ─────────────────────────────────────────────
+function buildModelList(){
+  const list=document.getElementById('modelList');
+  list.innerHTML='';
+  MODELS.forEach(m=>{
+    const div=document.createElement('div');
+    div.className='model-item'+(settings.model===m.id?' selected':'');
+    div.innerHTML=`<div class="model-name">${m.name}</div><div class="model-desc">${m.desc}</div>`;
+    div.onclick=()=>selectModel(m.id,m.name);
+    list.appendChild(div);
+  });
+}
+function openModelPicker(){ document.getElementById('modelPicker').style.display='flex'; }
+function closeModelPicker(e){ if(e.target===document.getElementById('modelPicker')) document.getElementById('modelPicker').style.display='none'; }
+function selectModel(id,name){
+  settings.model=id;
+  document.getElementById('modelBadge').textContent=name.slice(0,15);
+  saveToStorage();
+  buildModelList();
+  document.getElementById('modelPicker').style.display='none';
+  showToast(`Model: ${name}`);
+}
+
+// ─────────────────────────────────────────────
+// HISTORY
+// ─────────────────────────────────────────────
+function openHistory(){
+  const body=document.getElementById('historyBody');
+  body.innerHTML='';
+  const ids=Object.keys(conversations).reverse();
+  if(ids.length===0){ body.innerHTML='<div style="color:var(--muted);text-align:center;padding:40px 0;font-size:14px;">No chats yet</div>'; }
+  ids.forEach(id=>{
+    const c=conversations[id];
+    const div=document.createElement('div');
+    div.className='history-item';
+    const date=new Date(c.date).toLocaleDateString([],{month:'short',day:'numeric'});
+    div.innerHTML=`<div class="history-item-title">${c.title||'New Chat'}</div>
+      <div class="history-item-preview">${c.messages.length} messages</div>
+      <div class="history-item-date">${date}</div>`;
+    div.onclick=()=>loadChat(id);
+    body.appendChild(div);
+  });
+  document.getElementById('historyPanel').style.display='flex';
+}
+function closeHistory(){ document.getElementById('historyPanel').style.display='none'; }
+function loadChat(id){
+  closeHistory();
+  currentChatId=id;
+  messages=[...conversations[id].messages];
+  renderAllMessages();
+  updateChatTitle();
+}
+function updateChatTitle(){
+  const t=conversations[currentChatId]?.title||'Wise AI';
+  document.getElementById('chatTitle').textContent=t;
+}
+
+// ─────────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────────
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ─────────────────────────────────────────────
+// LIVE TALK CHIP
+// ─────────────────────────────────────────────
+// Add live talk to chips
+document.addEventListener('DOMContentLoaded',()=>{
+  const chips=document.getElementById('chips');
+  const ltChip=document.createElement('div');
+  ltChip.className='bottom-chip';
+  ltChip.style.color='var(--red)';
+  ltChip.style.borderColor='var(--red)';
+  ltChip.innerHTML=`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:middle;margin-right:4px"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M19 10c0 3.87-3.13 7-7 7s-7-3.13-7-7"/></svg>Live Talk`;
+  ltChip.onclick=startLiveTalk;
+  chips.appendChild(ltChip);
+});
+
+// ─────────────────────────────────────────────
+// START
+// ─────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
